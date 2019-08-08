@@ -79,27 +79,37 @@ async function applyToJob(jobPostingURL, appliedJobsById) {
         return;
 
     await goTo(jobPostingURL);
-    await page.click("#apply_btn"); await waitFor(3000);
+    await page.click("#apply_btn"); 
+    await waitFor(5000);
     //Portal starts on step 3
-    await page.select("select[id$='recruitmentSourceType']", '4'); await waitFor();
-    await page.select("select[id='recruitmentSourceDP']", '10001'); await waitFor();
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); await waitFor();
+    await page.select("select[id$='recruitmentSourceType']", '4'); 
+    await waitFor();
+    await page.select("select[id='recruitmentSourceDP']", '10001'); 
+    await waitFor();
+    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
+    await waitFor();
     //Step 4
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); await waitFor();
+    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
+    await waitFor();
     //Step 5
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); await waitFor();
+    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
+    await waitFor();
     //Step 6
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); await waitFor();
+    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
+    await waitFor();
     //Step 7
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); await waitFor();
+    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
+    await waitFor();
     //Step 8
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); await waitFor();
+    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
+    await waitFor();
     //Step 9
     await page.click("input[id$='FullName']");
     await page.keyboard.type(config.fullName);
     await page.click("input[id$='EMailAddress']");
     await page.keyboard.type(config.emailAddress);
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); await waitFor();
+    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
+    await waitFor();
     //Final step, submit button
     await page.click("#et-ef-content-ftf-submitCmdBottom");
 }
