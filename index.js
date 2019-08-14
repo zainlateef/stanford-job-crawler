@@ -16,7 +16,7 @@ let browser, page, context;
 })();
 
 async function initializeBrowser() {
-    browser = await puppeteer.launch({headless: false});
+    browser = await puppeteer.launch({headless: config.hideBrowser});
     context = await browser.createIncognitoBrowserContext();
     page = await context.newPage();
 }
@@ -37,6 +37,7 @@ async function getAppliedJobsById() {
     await goTo(stanfordMySubmissionsPage);
     await select('[id="mySubmissionsInterface.myAppDropListSize"]', "100");
     do {
+        await waitFor(3000);
         let jobIdElements = await getAllElements('span[id^="mySubmissionsInterface.ID1208.row"]');
         for (jobIdElement of jobIdElements) {
             let jobIdFullText = await getInnerText(jobIdElement);
@@ -98,7 +99,8 @@ async function applyToJob(jobPostingURL, appliedJobsById) {
     await page.keyboard.type(config.emailAddress);
     await click("#et-ef-content-ftf-saveContinueCmdBottom",true); 
     //Final step, submit button
-    await click("#et-ef-content-ftf-submitCmdBottom");
+    await click("#et-ef-content-ftf-submitCmdBottom",true);
+    await waitFor(5000);
 }
 
 async function getJobId(jobPostingURL) {
@@ -185,6 +187,6 @@ async function waitForSelector(selector){
     await page.waitForSelector(selector).catch(err => {console.log(err)});
 }
 
-async function waitFor(time = 1500) {
+async function waitFor(time = 2500) {
     await page.waitFor(time);
 }
