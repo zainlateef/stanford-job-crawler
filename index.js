@@ -33,7 +33,7 @@ async function signInToStanford() {
 
 async function getAppliedJobsById() {
     //Opportunity to make it more robust: click the third li in the ul id="id="et-ef-content-ftf-j_id_id81pc5"
-    let appliedJobsById = new Set([]);
+    let appliedJobsById = new Set([]), next=true;
     await goTo(stanfordMySubmissionsPage);
     await select('[id="mySubmissionsInterface.myAppDropListSize"]', "100");
     do {
@@ -43,8 +43,9 @@ async function getAppliedJobsById() {
             let jobId = jobIdFullText.replace("Job Number: ", "");
             appliedJobsById.add(jobId);
         }
+        next = await appliedJobsPagination()
     }
-    while (await appliedJobsPagination())
+    while(next)
 
     return [...appliedJobsById];
 }
@@ -111,13 +112,14 @@ async function getAllPostedJobs(jobSearchURL) {
     //do this async on a separate page. search for jobs and apply at the same time
     //add a job on the queue, remove it from the queue once it's been applied for or if its already been applied to
     await goTo(jobSearchURL);
-    let allJobLinks = [];
+    let allJobLinks = [], next = true;
     let anchorSelector = 'div[id^="job_list_"] a.job_link.font_bold'
     do {
         let jobLinksOnCurrentPage = await page.$$eval(anchorSelector, anchors => [].map.call(anchors, a => a.href));
         allJobLinks = allJobLinks.concat(jobLinksOnCurrentPage);
+        next = await postedJobsPagination(page.url());
     }
-    while (await postedJobsPagination(page.url()))
+    while (next)
 
     return allJobLinks;
 }
