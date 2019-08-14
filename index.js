@@ -101,6 +101,7 @@ async function applyToJob(jobPostingURL, appliedJobsById) {
     //Final step, submit button
     await click("#et-ef-content-ftf-submitCmdBottom",true);
     await waitFor(5000);
+    console.log("applied for Job:"+jobId+" @ "+jobPostingURL);
 }
 
 async function getJobId(jobPostingURL) {
