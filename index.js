@@ -4,8 +4,7 @@ const stanfordCareersHomePage = "https://careersearch.stanford.edu/";
 const stanfordMySubmissionsPage = "https://stanford.taleo.net//careersection/mysubmissions.ftl?lang=en";
 let browser, page, context;
 
-//MAIN
-(async () => {
+(async function main(){
     await initializeBrowser();
     await signInToStanford();
     const keywords = config.keywords;
@@ -25,39 +24,37 @@ async function initializeBrowser() {
 async function signInToStanford() {
     //TODO: check for login errors
     await goTo(stanfordMySubmissionsPage)
-    await page.click('#dialogTemplate-dialogForm-login-name1');
+    await click('#dialogTemplate-dialogForm-login-name1');
     await page.keyboard.type(config.stanford_username);
-    await page.click('#dialogTemplate-dialogForm-login-password');
+    await click('#dialogTemplate-dialogForm-login-password');
     await page.keyboard.type(config.stanford_password);
-    await page.click('#dialogTemplate-dialogForm-login-defaultCmd');
+    await click('#dialogTemplate-dialogForm-login-defaultCmd');
 }
 
 async function getAppliedJobsById() {
-    //TODO: account for drafts
-    let appliedJobsById = [];
+    //Opportunity to make it more robust: click the third li in the ul id="id="et-ef-content-ftf-j_id_id81pc5"
+    let appliedJobsById = new Set([]);
     await goTo(stanfordMySubmissionsPage);
-    await page.select('[id="mySubmissionsInterface.myAppDropListSize"]', "100");
+    await select('[id="mySubmissionsInterface.myAppDropListSize"]', "100");
     do {
-        let jobIdElements = await page.$$('span[id^="mySubmissionsInterface.ID1208.row"]');
+        let jobIdElements = await getAllElements('span[id^="mySubmissionsInterface.ID1208.row"]');
         for (jobIdElement of jobIdElements) {
             let jobIdFullText = await getInnerText(jobIdElement);
             let jobId = jobIdFullText.replace("Job Number: ", "");
-            appliedJobsById.push(jobId);
+            appliedJobsById.add(jobId);
         }
-
     }
     while (await appliedJobsPagination())
 
-    return appliedJobsById;
+    return [...appliedJobsById];
 }
 
 async function appliedJobsPagination() {
     let nextPageSelector = 'a[id="mySubmissionsInterface.pagerDivID1610.Next"]';
-    await page.waitFor(3000);
-    const nextPageElement = await page.$(nextPageSelector);
+    const nextPageElement = await getElement(nextPageSelector);
     const hasNext = await page.evaluate(element => element.getAttribute('aria-disabled'), nextPageElement);
     if (hasNext !== "true") {
-        await page.click(nextPageSelector);
+        await click(nextPageSelector);
         return true;
     }
     else
@@ -79,49 +76,40 @@ async function applyToJob(jobPostingURL, appliedJobsById) {
         return;
 
     await goTo(jobPostingURL);
-    await page.click("#apply_btn"); 
-    await waitFor(5000);
-    //Portal starts on step 3
-    await page.select("select[id$='recruitmentSourceType']", '4'); 
-    await waitFor();
-    await page.select("select[id='recruitmentSourceDP']", '10001'); 
-    await waitFor();
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
-    await waitFor();
+    await click("#apply_btn"); 
+    await select("select[id$='recruitmentSourceType']", '4'); 
+    await select("select[id='recruitmentSourceDP']", '10001');
+    await click("#et-ef-content-ftf-saveContinueCmdBottom",true);
     //Step 4
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
-    await waitFor();
+    await click("#et-ef-content-ftf-saveContinueCmdBottom",true); 
     //Step 5
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
-    await waitFor();
+    await click("#et-ef-content-ftf-saveContinueCmdBottom",true); 
     //Step 6
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
-    await waitFor();
+    await click("#et-ef-content-ftf-saveContinueCmdBottom",true); 
     //Step 7
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
-    await waitFor();
+    await click("#et-ef-content-ftf-saveContinueCmdBottom",true); 
     //Step 8
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
-    await waitFor();
+    await click("#et-ef-content-ftf-saveContinueCmdBottom",true); 
     //Step 9
-    await page.click("input[id$='FullName']");
+    await click("input[id$='FullName']");
     await page.keyboard.type(config.fullName);
-    await page.click("input[id$='EMailAddress']");
+    await click("input[id$='EMailAddress']");
     await page.keyboard.type(config.emailAddress);
-    await page.click("#et-ef-content-ftf-saveContinueCmdBottom"); 
-    await waitFor();
+    await click("#et-ef-content-ftf-saveContinueCmdBottom",true); 
     //Final step, submit button
-    await page.click("#et-ef-content-ftf-submitCmdBottom");
+    await click("#et-ef-content-ftf-submitCmdBottom");
 }
 
 async function getJobId(jobPostingURL) {
     await goTo(jobPostingURL);
-    const jobIdSpanElement = await page.$('dd.job_external_id span.field_value');
+    const jobIdSpanElement = await getElement('dd.job_external_id span.field_value');
     const jobId = getInnerText(jobIdSpanElement);
     return jobId;
 }
 
 async function getAllPostedJobs(jobSearchURL) {
+    //do this async on a separate page. search for jobs and apply at the same time
+    //add a job on the queue, remove it from the queue once it's been applied for or if its already been applied to
     await goTo(jobSearchURL);
     let allJobLinks = [];
     let anchorSelector = 'div[id^="job_list_"] a.job_link.font_bold'
@@ -153,9 +141,9 @@ async function postedJobsPagination(currentURL) {
 
 async function searchJobs(keyword) {
     await goTo(stanfordCareersHomePage)
-    await page.click('#keyword');
+    await click('#keyword');
     await page.keyboard.type(keyword);
-    await page.click('#jSearchSubmit span.btn_text');
+    await click('#jSearchSubmit span.btn_text');
     await page.waitForNavigation();
     return page.url();
 }
@@ -167,6 +155,32 @@ async function getInnerText(element) {
 
 async function goTo(url) {
     page.url() === url ? null : await page.goto(url);
+}
+
+async function click(selector, navigation = false){
+    await waitForSelector(selector);
+    if(navigation)
+        await waitFor();
+    await page.click(selector);
+}
+
+async function select(selector, value){
+    await waitForSelector(selector);
+    await page.select(selector, value);
+}
+
+async function getElement(selector){
+    await waitForSelector(selector);
+    return await page.$(selector);
+}
+
+async function getAllElements(selector){
+    await waitForSelector(selector);
+    return await page.$$(selector);
+}
+
+async function waitForSelector(selector){
+    await page.waitForSelector(selector).catch(err => {console.log(err)});
 }
 
 async function waitFor(time = 1500) {
