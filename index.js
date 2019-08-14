@@ -16,7 +16,7 @@ let browser, page, context;
 })();
 
 async function initializeBrowser() {
-    browser = await puppeteer.launch({headless: config.hideBrowser});
+    browser = await puppeteer.launch({headless: false});
     context = await browser.createIncognitoBrowserContext();
     page = await context.newPage();
 }

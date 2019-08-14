@@ -3,6 +3,5 @@
     "stanford_password" : "XXXXXX",
     "fullName" : "Zain Lateef",
     "emailAddress" : "zlateefwps@gmail.com",
-    "keywords" : ["web developer","software engineer"],
-    "hideBrowser": true
+    "keywords" : ["web developer","software engineer"]
 }
