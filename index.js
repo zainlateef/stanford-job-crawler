@@ -68,7 +68,7 @@ async function applyForAllJobs(keyword, appliedJobsById) {
     const jobSearchURL = await searchJobs(keyword);
     const jobPostingsByURL = await getAllPostedJobs(jobSearchURL);
     for (jobPostingURL of jobPostingsByURL) {
-        await applyToJob(jobPostingURL, appliedJobsById);
+        await applyToJob(jobPostingURL, appliedJobsById).catch(err=>console.log(err));
     }
 }
 
