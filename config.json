@@ -1,7 +1,7 @@
 {
     "stanford_username" : "Zain_Lateef",
     "stanford_password" : "XXXXXX",
-    "fullName" : "Zain Lateef",
-    "emailAddress" : "zlateefwps@gmail.com",
+    "full_name" : "Zain Lateef",
+    "email_address" : "zlateefwps@gmail.com",
     "keywords" : ["web developer","software engineer"]
 }

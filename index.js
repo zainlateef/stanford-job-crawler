@@ -3,15 +3,18 @@ const config = require('./config.json');
 const stanfordCareersHomePage = "https://careersearch.stanford.edu/";
 const stanfordMySubmissionsPage = "https://stanford.taleo.net//careersection/mysubmissions.ftl?lang=en";
 let browser, page, context;
+let jobCounter = 0;
 
 (async function main(){
     await initializeBrowser();
     await signInToStanford();
     const keywords = config.keywords;
     for (keyword of keywords) {
+        console.log("Applying for:'"+keyword+"'");
         let appliedJobsById = await getAppliedJobsById();
         await applyForAllJobs(keyword, appliedJobsById);
     }
+    console.log("Program finished, "+jobCounter+" jobs applied for");
     browser.close();
 })();
 
@@ -94,14 +97,15 @@ async function applyToJob(jobPostingURL, appliedJobsById) {
     await click("#et-ef-content-ftf-saveContinueCmdBottom",true); 
     //Step 9
     await click("input[id$='FullName']");
-    await page.keyboard.type(config.fullName);
+    await page.keyboard.type(config.full_name);
     await click("input[id$='EMailAddress']");
-    await page.keyboard.type(config.emailAddress);
+    await page.keyboard.type(config.email_address);
     await click("#et-ef-content-ftf-saveContinueCmdBottom",true); 
     //Final step, submit button
     await click("#et-ef-content-ftf-submitCmdBottom",true);
     await waitFor(5000);
     console.log("applied for Job:"+jobId+" @ "+jobPostingURL);
+    jobCounter++;
 }
 
 async function getJobId(jobPostingURL) {
@@ -185,7 +189,7 @@ async function getAllElements(selector){
 }
 
 async function waitForSelector(selector){
-    await page.waitForSelector(selector).catch(err => {console.log(err)});
+    await page.waitForSelector(selector);
 }
 
 async function waitFor(time = 2500) {
