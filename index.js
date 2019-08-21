@@ -71,7 +71,7 @@ async function applyForAllJobs(keyword, appliedJobsById) {
     const jobSearchURL = await searchJobs(keyword);
     const jobPostingsByURL = await getAllPostedJobs(jobSearchURL);
     for (jobPostingURL of jobPostingsByURL) {
-        await applyToJob(jobPostingURL, appliedJobsById).catch(err=>console.log(err));
+        await applyToJob(jobPostingURL, appliedJobsById).catch(err => jobApplicationErrorHandler(err, jobPostingURL));
     }
 }
 
@@ -196,4 +196,9 @@ async function waitForSelector(selector){
 
 async function waitFor(time = 2500) {
     await page.waitFor(time);
+}
+
+function jobApplicationErrorHandler(err, jobPostingURL){
+    console.log("An error occurred while applying to:"+jobPostingURL);
+    console.error(err,)
 }
