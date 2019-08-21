@@ -82,6 +82,8 @@ async function applyToJob(jobPostingURL, appliedJobsById) {
 
     await goTo(jobPostingURL);
     await click("#apply_btn"); 
+
+    //Starts at Step 3
     await select("select[id$='recruitmentSourceType']", '4'); 
     await select("select[id='recruitmentSourceDP']", '10001');
     await click("#et-ef-content-ftf-saveContinueCmdBottom",true);
@@ -101,7 +103,7 @@ async function applyToJob(jobPostingURL, appliedJobsById) {
     await click("input[id$='EMailAddress']");
     await page.keyboard.type(config.email_address);
     await click("#et-ef-content-ftf-saveContinueCmdBottom",true); 
-    //Final step, submit button
+    //Step 10, final submit
     await click("#et-ef-content-ftf-submitCmdBottom",true);
     await waitFor(5000);
     console.log("applied for Job:"+jobId+" @ "+jobPostingURL);
