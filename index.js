@@ -7,7 +7,7 @@ let jobCounter = 0;
 
 (async function main(){
     await initializeBrowser();
-    await signInToStanford();
+    await signInToStanford().catch(err => signInErrorHandler(err));
     const keywords = config.keywords;
     for (keyword of keywords) {
         console.log("Applying for:'"+keyword+"'");
@@ -32,6 +32,11 @@ async function signInToStanford() {
     await click('#dialogTemplate-dialogForm-login-password');
     await page.keyboard.type(config.stanford_password);
     await click('#dialogTemplate-dialogForm-login-defaultCmd');
+
+    await waitFor();
+    if(!page.url().includes("mysubmissions")){
+        throw new Error('Invalid credentials');
+    }
 }
 
 async function getAppliedJobsById() {
@@ -200,5 +205,10 @@ async function waitFor(time = 2500) {
 
 function jobApplicationErrorHandler(err, jobPostingURL){
     console.log("An error occurred while applying to:"+jobPostingURL);
-    console.error(err,)
+    console.error("Error details: "+err.message);
+}
+
+function signInErrorHandler(err){
+    console.log("Error: invalid credentials");
+    process.exit();
 }
