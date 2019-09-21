@@ -6,17 +6,24 @@ let browser, page, context;
 let jobCounter = 0;
 
 (async function main(){
+    if(config.infiniteLoop)
+        while(true){await run().catch(err => loopErrorHandler(err));}
+    else
+        await run().catch(err => null);
+})();
+
+async function run(){
     await initializeBrowser();
     await signInToStanford().catch(err => signInErrorHandler(err));
     const keywords = config.keywords;
     for (keyword of keywords) {
-        console.log("Applying for:'"+keyword+"'");
+        print("Applying for:'"+keyword+"'");
         let appliedJobsById = await getAppliedJobsById();
         await applyForAllJobs(keyword, appliedJobsById);
     }
-    console.log("Program finished, "+jobCounter+" jobs applied for");
-    browser.close();
-})();
+    print("Program finished, "+jobCounter+" jobs applied for");
+    if(browser) browser.close();
+}
 
 async function initializeBrowser() {
     browser = await puppeteer.launch({headless: false});
@@ -111,7 +118,7 @@ async function applyToJob(jobPostingURL, appliedJobsById) {
     //Step 10, final submit
     await click("#et-ef-content-ftf-submitCmdBottom",true);
     await waitFor(5000);
-    console.log("applied for Job:"+jobId+" @ "+jobPostingURL);
+    print("applied for Job:"+jobId+" @ "+jobPostingURL);
     jobCounter++;
 }
 
@@ -204,11 +211,21 @@ async function waitFor(time = 2500) {
 }
 
 function jobApplicationErrorHandler(err, jobPostingURL){
-    console.log("An error occurred while applying to:"+jobPostingURL);
+    print("An error occurred while applying to:"+jobPostingURL);
     console.error("Error details: "+err.message);
 }
 
 function signInErrorHandler(err){
-    console.log("Error: invalid credentials");
+    print("Error: invalid credentials");
     process.exit();
 }
+
+function loopErrorHandler(err){
+    print("Error in loop. Restarting function");
+}
+
+function print(str){
+    let timeStamp = new Date().toLocaleString();
+    console.log(timeStamp + ":\t" +str);
+}
+
